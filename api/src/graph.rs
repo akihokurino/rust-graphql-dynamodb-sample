@@ -1,12 +1,14 @@
 mod inputs;
 mod models;
+mod mutation;
+mod query;
 
-use crate::graph::inputs::*;
-use crate::graph::models::*;
+use crate::graph::mutation::MutationRoot;
+use crate::graph::query::QueryRoot;
 use app::application::*;
 use app::AppError;
 use convert_case::{Case, Casing};
-use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
+use juniper::{EmptySubscription, FieldError, RootNode};
 use strum_macros::Display as StrumDisplay;
 
 #[derive(Clone)]
@@ -29,42 +31,6 @@ pub fn create_schema() -> Schema {
 }
 
 pub type Schema = RootNode<'static, QueryRoot, MutationRoot, EmptySubscription<Context>>;
-
-pub struct QueryRoot;
-
-#[juniper::graphql_object(Context = Context)]
-impl QueryRoot {
-    fn stocks(context: &Context) -> FieldResult<Vec<Stock>> {
-        let stocks = context
-            .stock_application
-            .list()
-            .map_err(FieldErrorWithCode::from)?;
-
-        Ok(stocks
-            .iter()
-            .map(|v| Stock {
-                id: v.id.to_owned(),
-            })
-            .collect())
-    }
-
-    fn stock(_context: &Context, id: String) -> FieldResult<Stock> {
-        let stock = Stock { id: id.to_owned() };
-        Ok(stock)
-    }
-}
-
-pub struct MutationRoot;
-
-#[juniper::graphql_object(Context = Context)]
-impl MutationRoot {
-    fn create_stock(_context: &Context, _input: CreateStockInput) -> FieldResult<Stock> {
-        let stock = Stock {
-            id: "1".to_string(),
-        };
-        Ok(stock)
-    }
-}
 
 #[derive(StrumDisplay, Debug)]
 pub enum FieldErrorCode {
