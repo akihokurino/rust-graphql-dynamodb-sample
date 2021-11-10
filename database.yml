@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: DynamoDB
+
+Resources:
+  DDBCompanyTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: sample-stock
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST

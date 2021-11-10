@@ -2,4 +2,5 @@
 #[graphql(description = "")]
 pub struct Stock {
     pub id: String,
+    pub name: String,
 }

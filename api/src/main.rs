@@ -14,6 +14,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         let schema = create_schema();
 
+        // TODO: data -> app_dataに移行する
         App::new()
             .data(schema)
             .service(
