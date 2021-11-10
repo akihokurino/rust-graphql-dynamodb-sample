@@ -30,9 +30,9 @@ impl Entity {
         None
     }
 
-    async fn save(&self, cli: &Client) -> AppResult<()> {
+    async fn serialize_and_save(&self, cli: &Client, table_name: String) -> AppResult<()> {
         cli.put_item()
-            .table_name(TABLE_NAME)
+            .table_name(table_name)
             .item(KEY_ID, AttributeValue::S(self.id.clone()))
             .item(KEY_NAME, AttributeValue::S(self.name.clone()))
             .send()
@@ -71,7 +71,7 @@ impl Dao<stock::Stock> {
         let res = self
             .cli
             .scan()
-            .table_name(TABLE_NAME)
+            .table_name(self.table_name_provider.with(TABLE_NAME))
             .send()
             .await
             .map_err(AppError::from)?;
@@ -91,7 +91,7 @@ impl Dao<stock::Stock> {
         let res = self
             .cli
             .get_item()
-            .table_name(TABLE_NAME)
+            .table_name(self.table_name_provider.with(TABLE_NAME))
             .key(KEY_ID, Entity::primary_key(id))
             .send()
             .await
@@ -103,14 +103,15 @@ impl Dao<stock::Stock> {
 
     pub async fn put(&self, item: &stock::Stock) -> AppResult<()> {
         let e: Entity = item.clone().into();
-        e.save(&self.cli).await?;
+        e.serialize_and_save(&self.cli, self.table_name_provider.with(TABLE_NAME))
+            .await?;
         Ok(())
     }
 
     pub async fn delete(&self, id: String) -> AppResult<()> {
         self.cli
             .delete_item()
-            .table_name(TABLE_NAME)
+            .table_name(self.table_name_provider.with(TABLE_NAME))
             .key(KEY_ID, Entity::primary_key(id))
             .send()
             .await
