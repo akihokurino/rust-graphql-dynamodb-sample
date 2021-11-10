@@ -1,4 +1,4 @@
-use crate::graph::models::Stock;
+use crate::graph::outputs::Stock;
 use crate::graph::Context;
 use crate::graph::FieldErrorWithCode;
 use juniper::FieldResult;

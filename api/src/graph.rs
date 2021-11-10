@@ -1,6 +1,6 @@
 mod inputs;
-mod models;
 mod mutation;
+mod outputs;
 mod query;
 
 use crate::graph::mutation::MutationRoot;
