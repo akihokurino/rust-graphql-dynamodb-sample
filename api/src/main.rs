@@ -44,6 +44,6 @@ async fn graphql_route(
     payload: web::Payload,
     schema: web::Data<Schema>,
 ) -> actix_web::Result<HttpResponse> {
-    let context = Context::new();
+    let context = Context::new().await;
     graphql_handler(&schema, &context, req, payload).await
 }

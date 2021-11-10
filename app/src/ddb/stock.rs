@@ -67,8 +67,9 @@ impl From<&stock::Stock> for Entity {
 }
 
 impl Dao<stock::Stock> {
-    pub async fn get_all(&self, cli: &Client) -> AppResult<Vec<Stock>> {
-        let res = cli
+    pub async fn get_all(&self) -> AppResult<Vec<Stock>> {
+        let res = self
+            .cli
             .scan()
             .table_name(TABLE_NAME)
             .send()
@@ -86,8 +87,9 @@ impl Dao<stock::Stock> {
             .collect())
     }
 
-    pub async fn get(&self, cli: &Client, id: String) -> AppResult<Stock> {
-        let res = cli
+    pub async fn get(&self, id: String) -> AppResult<Stock> {
+        let res = self
+            .cli
             .get_item()
             .table_name(TABLE_NAME)
             .key(KEY_ID, Entity::primary_key(id))
@@ -99,21 +101,20 @@ impl Dao<stock::Stock> {
         Ok(Stock::try_from(&Entity::deserialize(data).unwrap()).unwrap())
     }
 
-    pub async fn put(&self, cli: &Client, item: &stock::Stock) -> AppResult<()> {
+    pub async fn put(&self, item: &stock::Stock) -> AppResult<()> {
         let e: Entity = item.clone().into();
-        e.save(cli).await?;
-
+        e.save(&self.cli).await?;
         Ok(())
     }
 
-    pub async fn delete(&self, cli: &Client, id: String) -> AppResult<()> {
-        cli.delete_item()
+    pub async fn delete(&self, id: String) -> AppResult<()> {
+        self.cli
+            .delete_item()
             .table_name(TABLE_NAME)
             .key(KEY_ID, Entity::primary_key(id))
             .send()
             .await
             .map_err(AppError::from)?;
-
         Ok(())
     }
 }

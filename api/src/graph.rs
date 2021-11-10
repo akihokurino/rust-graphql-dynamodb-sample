@@ -11,7 +11,6 @@ use convert_case::{Case, Casing};
 use juniper::{EmptySubscription, FieldError, RootNode};
 use strum_macros::Display as StrumDisplay;
 
-#[derive(Clone)]
 pub struct Context {
     pub stock_application: stock::Application,
 }
@@ -19,8 +18,8 @@ pub struct Context {
 impl juniper::Context for Context {}
 
 impl Context {
-    pub fn new() -> Self {
-        let stock_application = stock::Application::new();
+    pub async fn new() -> Self {
+        let stock_application = stock::Application::new().await;
 
         Self { stock_application }
     }
