@@ -1,4 +1,4 @@
 #[derive(Debug, GraphQLInputObject)]
-pub struct CreateUserInput {
+pub struct CreateStockInput {
     pub name: String,
 }
