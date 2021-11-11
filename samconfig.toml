@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "rust-graphql-dynamodb-sam-sample"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-lkitb51qpe5f"
+s3_prefix = "rust-graphql-dynamodb-sam-sample"
+region = "ap-northeast-1"
+confirm_changeset = true
+no_fail_on_empty_changeset = true
+capabilities = "CAPABILITY_IAM"

@@ -3,9 +3,15 @@ ROOT := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 clean:
 	cargo clean
+	rm -rf target_lambda
 
 build:
-	cargo build --bin api
+	cd api && cargo build
+
+deploy:
+	docker build -t lambda_builder .
+	docker run -it --rm -v ~/.cargo/registry:/root/.cargo/registry:z -v $(PWD):/build:z lambda_builder
+	sam deploy
 
 run:
-	cargo run --bin api
+	cd api && cargo run
