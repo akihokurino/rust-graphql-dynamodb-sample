@@ -14,26 +14,24 @@ async fn main() -> Result<(), LambdaError> {
         let schema = create_schema();
 
         // TODO: data -> app_dataに移行する
+        // ApiGatewayにドメインを設定しないのでステージ名がパスに入る
         App::new()
             .data(schema)
             .service(
-                web::resource("/graphql")
+                web::resource("/default/graphql")
                     .route(web::post().to(graphql_route))
                     .route(web::get().to(graphql_route)),
             )
-            .service(web::resource("/playground").route(web::get().to(playground_route)))
-            .service(web::resource("/health_check").route(web::get().to(health_check_route)))
+            .service(web::resource("/default/playground").route(web::get().to(playground_route)))
+            .service(
+                web::resource("/default/health_check").route(web::get().to(health_check_route)),
+            )
     };
 
     if is_running_on_lambda() {
-        println!("running on lambda");
-        run_actix_on_lambda(app).await.map_err(|e| {
-            println!("got error when running lambda {:?}", e);
-            e
-        })?;
+        run_actix_on_lambda(app).await?;
     } else {
         let port = 3000;
-        println!("running on local, port={}", port);
         HttpServer::new(app)
             .bind(format!("127.0.0.1:{}", port))?
             .run()
@@ -48,7 +46,7 @@ async fn health_check_route() -> actix_web::Result<HttpResponse> {
 }
 
 async fn playground_route() -> actix_web::Result<HttpResponse> {
-    playground_handler("/graphql", None).await
+    playground_handler("/default/graphql", None).await
 }
 
 async fn graphql_route(

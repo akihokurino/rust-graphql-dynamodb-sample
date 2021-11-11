@@ -6,6 +6,20 @@ Globals:
   Function:
     Timeout: 5
 
+Parameters:
+  DomainName:
+    Type: String
+    Default: sample.akiho.app
+    Description: api service domain name
+  HostedZoneName:
+    Type: String
+    Default: akiho.app.
+    Description: hosted zone name for service domain
+  CertificateArn:
+    Type: String
+    Default: arn:aws:acm:ap-northeast-1:326914400610:certificate/703134f6-9e3b-40ba-aeb2-b9278b60ac6f
+    Description: certificate arn for service domain
+
 Resources:
   ApiFunction:
     Type: AWS::Serverless::Function
@@ -37,3 +51,9 @@ Resources:
       StageName: default
       BinaryMediaTypes:
         - "*/*"
+#      Domain:
+#        EndpointConfiguration: REGIONAL
+#        DomainName: !Ref DomainName
+#        Route53:
+#          HostedZoneName: !Ref HostedZoneName
+#        CertificateArn: !Ref CertificateArn
