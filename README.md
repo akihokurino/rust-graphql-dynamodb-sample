@@ -1,4 +1,4 @@
-# rust-graphql-dynamodb-sam-sample
+# rust-graphql-sam-dynamodb-sample
 
 ## 構成
 - rust v1.53.0
