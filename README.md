@@ -9,3 +9,5 @@
 - api gateway
 - route53
 - certificate manager
+- cognite
+- ssm

@@ -7,6 +7,10 @@ Globals:
     Timeout: 5
 
 Parameters:
+  SsmPath:
+    Type: String
+    Default: /sample/dotenv
+    Description: ssm prameter key path for dotenv body
   DomainName:
     Type: String
     Default: sample.akiho.app
@@ -42,8 +46,15 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /{proxy+}
             Method: ANY
+      Environment:
+        Variables:
+          SSM_PATH: !Ref SsmPath
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSSMReadOnlyAccess
+        - AmazonCognitoPowerUser
+        - AmazonSESFullAccess
+        - AmazonS3FullAccess
 
   ApiGateway:
     Type: AWS::Serverless::Api

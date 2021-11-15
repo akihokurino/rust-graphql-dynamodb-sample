@@ -1,15 +1,22 @@
+mod cognite;
 mod graph;
+mod ssm;
 
 #[macro_use]
 extern crate juniper;
 
 use crate::graph::*;
+use actix_web::http::HeaderMap;
 use juniper_actix::{graphql_handler, playground_handler};
 use lambda_web::actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
 use lambda_web::{is_running_on_lambda, run_actix_on_lambda, LambdaError};
+use std::env;
+use std::str::FromStr;
 
 #[actix_web::main]
 async fn main() -> Result<(), LambdaError> {
+    ssm::load_env().await;
+
     let app = move || {
         let schema = create_schema();
 
@@ -31,7 +38,7 @@ async fn main() -> Result<(), LambdaError> {
     if is_running_on_lambda() {
         run_actix_on_lambda(app).await?;
     } else {
-        let port = 3000;
+        let port = env::var("PORT").unwrap_or("3000".to_string());
         HttpServer::new(app)
             .bind(format!("127.0.0.1:{}", port))?
             .run()
@@ -54,6 +61,36 @@ async fn graphql_route(
     payload: web::Payload,
     schema: web::Data<Schema>,
 ) -> actix_web::Result<HttpResponse> {
-    let context = Context::new().await;
+    let authenticate_id = authenticate(&req).await;
+    let context = Context::new(authenticate_id).await;
     graphql_handler(&schema, &context, req, payload).await
+}
+
+async fn authenticate(req: &HttpRequest) -> Option<String> {
+    if let Some(id) = get_into(req.headers(), "x-user-id") {
+        return Some(id);
+    }
+
+    let token: &str = get(req.headers(), "authorization")?;
+    if token.len() < 7 {
+        return None;
+    }
+
+    let result = cognite::verify_token(&token[7..]).await;
+    if let Err(_err) = result {
+        return None;
+    }
+
+    Some(result.ok().unwrap().unwrap())
+}
+
+fn get_into<T>(headers: &HeaderMap, key: &str) -> Option<T>
+where
+    T: FromStr,
+{
+    headers.get(key)?.to_str().ok()?.parse::<T>().ok()
+}
+
+fn get<'a, 'b>(headers: &'a HeaderMap, key: &'b str) -> Option<&'a str> {
+    headers.get(key)?.to_str().ok()
 }

@@ -14,4 +14,4 @@ deploy:
 	sam deploy
 
 run:
-	cd api && cargo run
+	cd api && SSM_PARAMETER=/sample/dotenv cargo run

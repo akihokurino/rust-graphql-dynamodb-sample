@@ -12,16 +12,20 @@ use juniper::{EmptySubscription, FieldError, RootNode};
 use strum_macros::Display as StrumDisplay;
 
 pub struct Context {
+    pub authenticated_user_id: Option<String>,
     pub stock_application: stock::Application,
 }
 
 impl juniper::Context for Context {}
 
 impl Context {
-    pub async fn new() -> Self {
+    pub async fn new(authenticated_user_id: Option<String>) -> Self {
         let stock_application = stock::Application::new().await;
 
-        Self { stock_application }
+        Self {
+            authenticated_user_id,
+            stock_application,
+        }
     }
 }
 
@@ -45,6 +49,15 @@ pub struct FieldErrorWithCode {
     code: FieldErrorCode,
 }
 
+impl FieldErrorWithCode {
+    pub fn authenticate_error() -> Self {
+        FieldErrorWithCode {
+            err: AppError::UnAuthenticate,
+            code: FieldErrorCode::UnAuthenticate,
+        }
+    }
+}
+
 impl From<AppError> for FieldErrorWithCode {
     fn from(err: AppError) -> Self {
         FieldErrorWithCode {
@@ -56,6 +69,15 @@ impl From<AppError> for FieldErrorWithCode {
                 AppError::NotFound => FieldErrorCode::NotFound,
                 AppError::Internal(_) => FieldErrorCode::Internal,
             },
+        }
+    }
+}
+
+impl From<jsonwebtokens_cognito::Error> for FieldErrorWithCode {
+    fn from(_err: jsonwebtokens_cognito::Error) -> Self {
+        FieldErrorWithCode {
+            err: AppError::UnAuthenticate,
+            code: FieldErrorCode::UnAuthenticate,
         }
     }
 }
