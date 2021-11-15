@@ -1,6 +1,8 @@
 pub mod application;
+pub mod cognite;
 mod ddb;
 pub mod domain;
+pub mod ssm;
 
 use aws_sdk_dynamodb::error::{DeleteItemError, GetItemError, PutItemError, ScanError};
 use aws_sdk_dynamodb::SdkError;
@@ -53,5 +55,11 @@ impl From<SdkError<DeleteItemError>> for AppError {
     fn from(e: SdkError<DeleteItemError>) -> Self {
         println!("{:?}", e);
         Self::Internal("DynamoDBの削除エラーです".to_string())
+    }
+}
+
+impl From<jsonwebtokens_cognito::Error> for AppError {
+    fn from(_err: jsonwebtokens_cognito::Error) -> Self {
+        Self::UnAuthenticate
     }
 }

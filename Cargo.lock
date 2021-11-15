@@ -308,15 +308,11 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "app",
- "aws-config",
- "aws-sdk-ssm",
  "convert_case",
- "jsonwebtokens-cognito",
  "juniper",
  "juniper_actix",
  "lambda-web",
  "strum_macros",
- "tokio",
 ]
 
 [[package]]
@@ -325,6 +321,8 @@ version = "0.1.0"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
+ "aws-sdk-ssm",
+ "jsonwebtokens-cognito",
  "thiserror",
  "tokio",
  "uuid",

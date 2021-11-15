@@ -73,15 +73,6 @@ impl From<AppError> for FieldErrorWithCode {
     }
 }
 
-impl From<jsonwebtokens_cognito::Error> for FieldErrorWithCode {
-    fn from(_err: jsonwebtokens_cognito::Error) -> Self {
-        FieldErrorWithCode {
-            err: AppError::UnAuthenticate,
-            code: FieldErrorCode::UnAuthenticate,
-        }
-    }
-}
-
 impl From<FieldErrorWithCode> for FieldError {
     fn from(v: FieldErrorWithCode) -> Self {
         let code = v.code.to_string().to_case(Case::UpperSnake);

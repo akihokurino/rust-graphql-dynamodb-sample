@@ -1,6 +1,4 @@
-mod cognite;
 mod graph;
-mod ssm;
 
 #[macro_use]
 extern crate juniper;
@@ -15,7 +13,7 @@ use std::str::FromStr;
 
 #[actix_web::main]
 async fn main() -> Result<(), LambdaError> {
-    ssm::load_env().await;
+    app::ssm::load_env().await;
 
     let app = move || {
         let schema = create_schema();
@@ -76,7 +74,7 @@ async fn authenticate(req: &HttpRequest) -> Option<String> {
         return None;
     }
 
-    let result = cognite::verify_token(&token[7..]).await;
+    let result = app::cognite::verify_token(&token[7..]).await;
     if let Err(_err) = result {
         return None;
     }
